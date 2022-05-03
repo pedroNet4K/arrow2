@@ -1,7 +1,7 @@
 //! Serialization and deserialization to Arrow's flight protocol
 use std::sync::Arc;
 
-use arrow_format::flight::data::{FlightData, SchemaResult};
+pub use arrow_format::flight::data::{FlightData, SchemaResult};
 use arrow_format::ipc;
 use arrow_format::ipc::planus::ReadAsRoot;
 
