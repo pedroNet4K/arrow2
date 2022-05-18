@@ -313,9 +313,7 @@ impl<O: Offset> ListArray<O> {
         if O::is_large() {
             match data_type.to_logical_type() {
                 DataType::LargeList(child) => Ok(child.as_ref()),
-                _ => Err(Error::oos(
-                    "ListArray<i64> expects DataType::LargeList",
-                )),
+                _ => Err(Error::oos("ListArray<i64> expects DataType::LargeList")),
             }
         } else {
             match data_type.to_logical_type() {
