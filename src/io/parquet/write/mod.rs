@@ -15,7 +15,7 @@ mod utils;
 use crate::array::*;
 use crate::bitmap::Bitmap;
 use crate::datatypes::*;
-use crate::error::{ArrowError, Result};
+use crate::error::{Error, Result};
 use crate::io::parquet::read::schema::is_nullable;
 use crate::io::parquet::write::levels::NestedInfo;
 use crate::types::days_ms;
@@ -131,7 +131,7 @@ fn get_primitive(type_: ParquetType) -> Result<ParquetPrimitiveType> {
     if let ParquetType::PrimitiveType(t) = type_ {
         Ok(t)
     } else {
-        Err(ArrowError::InvalidArgumentError(format!(
+        Err(Error::InvalidArgumentError(format!(
             "The {:?} is not a primitive type but it is trying to describe a primitive array",
             type_
         )))
@@ -147,7 +147,7 @@ pub fn array_to_page(
 ) -> Result<EncodedPage> {
     let data_type = array.data_type();
     if !can_encode(data_type, encoding) {
-        return Err(ArrowError::InvalidArgumentError(format!(
+        return Err(Error::InvalidArgumentError(format!(
             "The datatype {:?} cannot be encoded by {:?}",
             data_type, encoding
         )));
@@ -358,7 +358,7 @@ pub fn array_to_page(
         DataType::FixedSizeList(_, _) | DataType::List(_) | DataType::LargeList(_) => {
             nested_array_to_page(array, type_, options)
         }
-        other => Err(ArrowError::NotYetImplemented(format!(
+        other => Err(Error::NotYetImplemented(format!(
             "Writing parquet V1 pages for data type {:?}",
             other
         ))),
@@ -395,13 +395,13 @@ fn list_array_to_page<O: Offset>(
         if let ParquetType::GroupType { mut fields, .. } = inner {
             get_primitive(fields.pop().unwrap())?
         } else {
-            return Err(ArrowError::InvalidArgumentError(format!(
+            return Err(Error::InvalidArgumentError(format!(
                 "The {:?} is not a valid inner type of a list but it is trying to describe a list array",
                 inner
             )));
         }
     } else {
-        return Err(ArrowError::InvalidArgumentError(format!(
+        return Err(Error::InvalidArgumentError(format!(
             "The {:?} is not a group type but it is trying to describe a list array",
             type_
         )));

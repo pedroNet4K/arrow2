@@ -6,7 +6,7 @@ use crate::{
     array::Array,
     chunk::Chunk,
     datatypes::Schema,
-    error::{ArrowError, Result},
+    error::{Error, Result},
 };
 
 use super::{
@@ -21,7 +21,7 @@ pub fn row_group_iter<A: AsRef<dyn Array> + 'static + Send + Sync>(
     encodings: Vec<Encoding>,
     fields: Vec<ParquetType>,
     options: WriteOptions,
-) -> RowGroupIter<'static, ArrowError> {
+) -> RowGroupIter<'static, Error> {
     DynIter::new(
         chunk
             .into_arrays()
@@ -33,7 +33,7 @@ pub fn row_group_iter<A: AsRef<dyn Array> + 'static + Send + Sync>(
                     let encoded_pages = DynIter::new(pages.map(|x| Ok(x?)));
                     let compressed_pages =
                         Compressor::new(encoded_pages, options.compression, vec![])
-                            .map_err(ArrowError::from);
+                            .map_err(Error::from);
                     DynStreamingIterator::new(compressed_pages)
                 })
             }),
@@ -79,7 +79,7 @@ impl<A: AsRef<dyn Array> + 'static, I: Iterator<Item = Result<Chunk<A>>>> RowGro
 impl<A: AsRef<dyn Array> + 'static + Send + Sync, I: Iterator<Item = Result<Chunk<A>>>> Iterator
     for RowGroupIterator<A, I>
 {
-    type Item = Result<RowGroupIter<'static, ArrowError>>;
+    type Item = Result<RowGroupIter<'static, Error>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let options = self.options;
