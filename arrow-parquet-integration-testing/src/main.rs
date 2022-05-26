@@ -177,11 +177,11 @@ fn main() -> Result<()> {
         .map(|x| match x.data_type() {
             DataType::Dictionary(..) => Encoding::RleDictionary,
             DataType::Utf8 | DataType::LargeUtf8 => {
-                if args.encoding_utf8 == EncodingScheme::Delta {
+                vec![if args.encoding_utf8 == EncodingScheme::Delta {
                     Encoding::DeltaLengthByteArray
                 } else {
                     Encoding::Plain
-                }
+                }]
             }
             _ => Encoding::Plain,
         })
